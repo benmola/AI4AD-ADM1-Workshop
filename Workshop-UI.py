@@ -1,8 +1,3 @@
-!git clone https://github.com/benmola/AI4AD-ADM1-Workshop..git
-%cd AI4AD-ADM1-Workshop.
-
-!pip install -r requirements.txt -q
-
 from ADM1 import ADM1Simulator
 import plotly.graph_objects as go
 import plotly.io as pio
@@ -18,10 +13,10 @@ pio.renderers.default = 'colab'
 
 def get_feedstock_ratios(maize_silage, grass_silage, food_waste, cattle_slurry):
     ratios = {
-        'Maize Silage': maize_silage,
-        'Grass Silage': grass_silage,
-        'Food Waste': food_waste,
-        'Cattle Slurry': cattle_slurry
+        'Maize Silage': maize_silage/100,
+        'Grass Silage': grass_silage/100,
+        'Food Waste': food_waste/100,
+        'Cattle Slurry': cattle_slurry/100
     }
     total = sum(ratios.values())
     if total == 0:
@@ -53,22 +48,19 @@ def run_adm1(maize_silage, grass_silage, food_waste, cattle_slurry, V, Q, T, sim
             print('❌ Simulation returned no data.')
             return
 
-        # Steady-state summary
+        # Steady-state summary - TRANSPOSED
         summary_data = {
-            'Process Indicator': ['pH', 'FOS', 'TAC', 'FOS/TAC', 'Gas Pressure', 'HRT (calculated)'],
-            'Steady-State Value': [
-                output_data['pH'].iloc[-1],
-                output_data['FOS'].iloc[-1],
-                output_data['TAC'].iloc[-1],
-                output_data['FOS/TAC'].iloc[-1],
-                output_data['p_gas'].iloc[-1],
-                output_data['HRT'].iloc[-1]  # Show calculated HRT from simulation
-            ]
+            'pH': [output_data['pH'].iloc[-1]],
+            'FOS': [output_data['FOS'].iloc[-1]],
+            'TAC': [output_data['TAC'].iloc[-1]],
+            'FOS/TAC': [output_data['FOS/TAC'].iloc[-1]],
+            'Gas Pressure': [output_data['p_gas'].iloc[-1]],
+            'HRT (V/Q)': [output_data['HRT'].iloc[-1]]
         }
-        summary_df = pd.DataFrame(summary_data)
+        summary_df = pd.DataFrame(summary_data, index=['Steady-State Value'])
         styled_summary = summary_df.style \
-            .format({'Steady-State Value': '{:.2f}'}) \
-            .background_gradient(cmap='viridis', subset=['Steady-State Value']) \
+            .format('{:.2f}') \
+            .background_gradient(cmap='viridis', axis=1) \
             .set_properties(**{'font-size': '10pt', 'border': '1px solid black'}) \
             .set_caption('📊 Steady-State Process Indicators') \
             .set_table_styles([
@@ -148,18 +140,18 @@ def run_adm1(maize_silage, grass_silage, food_waste, cattle_slurry, V, Q, T, sim
 output = Output()
 
 # Updated sliders - REMOVED HRT slider, added simulation period
-maize_slider = FloatSlider(min=0, max=1, step=0.1, value=0.5, description='Maize Silage')
-grass_slider = FloatSlider(min=0, max=1, step=0.1, value=0.3, description='Grass Silage')
-food_slider = FloatSlider(min=0, max=1, step=0.1, value=0.1, description='Food Waste')
-cattle_slider = FloatSlider(min=0, max=1, step=0.1, value=0.1, description='Cattle Slurry')
-v_slider = FloatSlider(min=1000, max=10000, step=500, value=6520, description='Volume (m³)')
+maize_slider = FloatSlider(min=0, max=100, step=5, value=50, description='Maize Silage')
+grass_slider = FloatSlider(min=0, max=100, step=10, value=30, description='Grass Silage')
+food_slider = FloatSlider(min=0, max=100, step=10, value=10, description='Food Waste')
+cattle_slider = FloatSlider(min=0, max=100, step=10, value=10, description='Cattle Slurry')
+v_slider = FloatSlider(min=1000, max=10000, step=500, value=7000, description='Volume (m³)')
 q_slider = FloatSlider(min=50, max=500, step=10, value=136.63, description='Flow Q (m³/d)')
-t_slider = FloatSlider(min=15, max=60, step=1, value=45, description='Temp (°C)')
-sim_period_slider = FloatSlider(min=100, max=300, step=20, value=150, description='Sim Days')
+t_slider = FloatSlider(min=25, max=65, step=1, value=45, description='Temp (°C)')
+sim_period_slider = FloatSlider(min=50, max=100, step=5, value=70, description='Sim Days')
 
 # Group into accordions
 feedstock_acc = Accordion(children=[VBox([maize_slider, grass_slider, food_slider, cattle_slider])])
-feedstock_acc.set_title(0, 'Feedstock Ratios')
+feedstock_acc.set_title(0, 'Feedstock Mix (%)')
 process_acc = Accordion(children=[VBox([v_slider, q_slider, t_slider, sim_period_slider])])
 process_acc.set_title(0, 'Process Parameters')
 
@@ -172,10 +164,10 @@ def on_run_clicked(b):
              v_slider.value, q_slider.value, t_slider.value, sim_period_slider.value, output)
 
 def on_reset_clicked(b):
-    maize_slider.value = 0.5
-    grass_slider.value = 0.3
-    food_slider.value = 0.1
-    cattle_slider.value = 0.1
+    maize_slider.value = 50
+    grass_slider.value = 30
+    food_slider.value = 10
+    cattle_slider.value = 10
     v_slider.value = 7000
     q_slider.value = 136.63
     t_slider.value = 45
