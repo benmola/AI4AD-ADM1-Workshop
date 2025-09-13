@@ -129,17 +129,17 @@ def run_adm1(maize_silage, grass_silage, food_waste, cattle_slurry, V, Q, T, sim
 
         fig.show()
 
-        # Export button
-        export_button = Button(description='Export Results to CSV')
-        def on_export_clicked(b):
-            filename = 'ADM1_results.csv'
-            output_data.to_csv(filename, index=False)
-            display(FileLink(filename))
-            print(f'✅ CSV exported: {filename}')
-        export_button.on_click(on_export_clicked)
-        display(export_button)
+        # # Export button
+        # export_button = Button(description='Export Results to CSV')
+        # def on_export_clicked(b):
+        #     filename = 'ADM1_results.csv'
+        #     output_data.to_csv(filename, index=False)
+        #     display(FileLink(filename))
+        #     print(f'✅ CSV exported: {filename}')
+        # export_button.on_click(on_export_clicked)
+        # display(export_button)
 
-        print('✅ Simulation Complete. Explore the interactive plot above!')
+        print('✅ Simulation Complete.')
 
 # Output widget
 output = Output()
