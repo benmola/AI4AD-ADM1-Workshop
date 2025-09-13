@@ -1,14 +1,19 @@
+!git clone https://github.com/benmola/AI4AD-ADM1-Workshop..git
+%cd AI4AD-ADM1-Workshop.
+
+!pip install -r requirements.txt -q
+
 from ADM1 import ADM1Simulator
 import plotly.graph_objects as go
 import plotly.io as pio
-import kaleido  
+import kaleido
 import pandas as pd
 from ipywidgets import FloatSlider, Button, VBox, HBox, Output, Accordion
 from IPython.display import display, FileLink, clear_output
 from tqdm import tqdm
 import os
 
-# Set Plotly renderer for better compatibility in Colab/Jupyter
+# Set Plotly renderer for better compatibility in Colab/Colab
 pio.renderers.default = 'colab'  # Use 'notebook' for classic Jupyter if needed
 
 def get_feedstock_ratios(maize_silage, grass_silage, food_waste, cattle_slurry):
@@ -31,22 +36,21 @@ def run_adm1(maize_silage, grass_silage, food_waste, cattle_slurry, HRT, V, Q, T
         ratios = get_feedstock_ratios(maize_silage, grass_silage, food_waste, cattle_slurry)
         days = int(HRT)
         simulator = ADM1Simulator(ratios, days=days, Q=Q, V=V, T=T)
-        
+
         # Simulate with progress bar
-        print('ADM1 Simulation in Progress....')
-        with tqdm(total=days, desc='Simulating Days') as pbar:
+        with tqdm(total=days, desc='Simulating Days', disable=True) as pbar:
             simulator.run()
             pbar.update(days)
-        
+
         output_data = simulator.get_results()
         if output_data.empty:
             print('❌ Simulation returned no data.')
             return
-        
+
         # Patch for compatibility
         if 'V' not in output_data.columns:
             output_data['V'] = V
-        
+
         # Steady-state summary as styled table (Process Indicators only for non-time-series)
         summary_data = {
             'Process Indicator': ['pH', 'FOS', 'TAC', 'FOS/TAC', 'Gas Pressure'],
@@ -59,16 +63,31 @@ def run_adm1(maize_silage, grass_silage, food_waste, cattle_slurry, HRT, V, Q, T
             ]
         }
         summary_df = pd.DataFrame(summary_data)
-        styled_summary = summary_df.style.background_gradient(cmap='viridis', subset=['Steady-State Value']).set_caption('📊 Steady-State Process Indicators')
+        # Apply enhanced styling
+        styled_summary = summary_df.style \
+            .format({'Steady-State Value': '{:.2f}'}) \
+            .background_gradient(cmap='viridis', subset=['Steady-State Value']) \
+            .set_properties(**{'font-size': '10pt', 'border': '1px solid black'}) \
+            .set_caption('📊 Steady-State Process Indicators (Biogas Plant Style)') \
+            .set_table_styles([
+                {'selector': 'th',
+                 'props': [('background-color', '#4CAF50'), ('color', 'white'), ('font-weight', 'bold')]},
+                {'selector': 'td',
+                 'props': [('text-align', 'center')]},
+                {'selector': 'caption',
+                 'props': [('caption-side', 'top'), ('font-size', '1.2em'), ('font-weight', 'bold')]}
+            ])
+
+
         display(styled_summary)
-        
+
         # Animated Plotly plots for Biogas and Methane only (Outputs)
         fig = go.Figure()
-        
+
         # Initial traces (empty for animation start)
         fig.add_trace(go.Scatter(x=[], y=[], mode='lines', name='Methane Flow (Output)', line=dict(color='blue', width=2)))
         fig.add_trace(go.Scatter(x=[], y=[], mode='lines', name='Biogas Flow (Output)', line=dict(color='purple', width=2)))
-        
+
         # Layout with animation controls
         max_time = output_data['time'].max()
         max_flow = max(output_data['q_gas'].max(), output_data['q_ch4'].max()) * 1.1
@@ -103,7 +122,7 @@ def run_adm1(maize_silage, grass_silage, food_waste, cattle_slurry, HRT, V, Q, T
             }],
             hovermode='x unified'  # Better interactivity
         )
-        
+
         # Animation frames (build incrementally for real-time feel)
         frames = [go.Frame(
             data=[
@@ -113,9 +132,9 @@ def run_adm1(maize_silage, grass_silage, food_waste, cattle_slurry, HRT, V, Q, T
             name=f'Frame {k}'
         ) for k in range(1, len(output_data) + 1)]
         fig.frames = frames
-        
+
         fig.show()
-        
+
         # Export button
         export_button = Button(description='Export Results to CSV')
         def on_export_clicked(b):
@@ -125,10 +144,10 @@ def run_adm1(maize_silage, grass_silage, food_waste, cattle_slurry, HRT, V, Q, T
             print(f'✅ CSV exported: {filename}')
         export_button.on_click(on_export_clicked)
         display(export_button)
-        
+
         print('✅ Simulation Complete. Explore the interactive plot above!')
 
-     # Output widget
+# Output widget
 output = Output()
 
 # Sliders
@@ -172,4 +191,4 @@ run_button.on_click(on_run_clicked)
 reset_button.on_click(on_reset_clicked)
 
 # Display interface
-display(VBox([HBox([feedstock_acc, process_acc]), HBox([run_button, reset_button]), output]))   
+display(VBox([HBox([feedstock_acc, process_acc]), HBox([run_button, reset_button]), output]))
