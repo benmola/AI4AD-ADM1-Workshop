@@ -154,23 +154,14 @@ q_slider = FloatSlider(min=50, max=500, step=10, value=136.63, description='Flow
 t_slider = FloatSlider(min=25, max=65, step=1, value=45, description='Temp (°C)')
 sim_period_slider = FloatSlider(min=50, max=100, step=5, value=70, description='Sim Days')
 
-# Group into accordions
-feedstock_acc = Accordion(children=[
-    VBox([maize_slider, grass_slider, food_slider, cattle_slider]),
-    VBox([])  # Dummy empty child to force title visibility
-])
-feedstock_acc.set_title(0, 'Feedstock Mix (%)')
-feedstock_acc.set_title(1, '')  # Empty title for dummy
-feedstock_acc.selected_index = 0  # Keep first open by default
+from ipywidgets import HTML
 
-process_acc = Accordion(children=[
-    VBox([v_slider, q_slider, t_slider, sim_period_slider]),
-    VBox([])  # Dummy empty child to force title visibility
-])
-process_acc.set_title(0, 'Process Parameters')
-process_acc.set_title(1, '')  # Empty title for dummy
-process_acc.selected_index = 0  # Keep first open by default
+# Group into sections with solid HTML titles
+feedstock_title = HTML(value='<h3 style="margin: 0.5em 0; color: #333; border-bottom: 1px solid #ccc; padding-bottom: 0.2em;">Feedstock Mix (%)</h3>')
+feedstock_section = VBox([feedstock_title, VBox([maize_slider, grass_slider, food_slider, cattle_slider])])
 
+process_title = HTML(value='<h3 style="margin: 0.5em 0; color: #333; border-bottom: 1px solid #ccc; padding-bottom: 0.2em;">Process Parameters</h3>')
+process_section = VBox([process_title, VBox([v_slider, q_slider, t_slider, sim_period_slider])])
 # Buttons
 run_button = Button(description='Run Simulation')
 reset_button = Button(description='Reset Sliders')
