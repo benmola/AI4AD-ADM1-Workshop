@@ -154,12 +154,27 @@ q_slider = FloatSlider(min=50, max=500, step=10, value=136.63, description='Flow
 t_slider = FloatSlider(min=25, max=65, step=1, value=45, description='Temp (°C)')
 sim_period_slider = FloatSlider(min=50, max=100, step=5, value=70, description='Sim Days')
 
-# Group into accordions
-feedstock_acc = Accordion(children=[VBox([maize_slider, grass_slider, food_slider, cattle_slider])])
+# # Group into accordions
+# feedstock_acc = Accordion(children=[VBox([maize_slider, grass_slider, food_slider, cattle_slider])])
+# feedstock_acc.set_title(0, 'Feedstock Mix (%)')
+# process_acc = Accordion(children=[VBox([v_slider, q_slider, t_slider, sim_period_slider])])
+# process_acc.set_title(0, 'Process Parameters')
+# Group into accordions with dummy sections for visible titles
+feedstock_acc = Accordion(children=[
+    VBox([maize_slider, grass_slider, food_slider, cattle_slider]),
+    VBox([])
+])
 feedstock_acc.set_title(0, 'Feedstock Mix (%)')
-process_acc = Accordion(children=[VBox([v_slider, q_slider, t_slider, sim_period_slider])])
-process_acc.set_title(0, 'Process Parameters')
+feedstock_acc.set_title(1, '')
+feedstock_acc.selected_index = 0
 
+process_acc = Accordion(children=[
+    VBox([v_slider, q_slider, t_slider, sim_period_slider]),
+    VBox([])
+])
+process_acc.set_title(0, 'Process Parameters')
+process_acc.set_title(1, '')
+process_acc.selected_index = 0
 
 # Buttons
 run_button = Button(description='Run Simulation')
