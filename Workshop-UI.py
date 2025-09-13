@@ -168,7 +168,7 @@ process_acc.selected_index = None
 
 
 
-# --- Buttons remain the same ---
+# Buttons
 run_button = Button(description='Run Simulation')
 reset_button = Button(description='Reset Sliders')
 
@@ -191,14 +191,6 @@ def on_reset_clicked(b):
 
 run_button.on_click(on_run_clicked)
 reset_button.on_click(on_reset_clicked)
-
-# --- Display everything ---
-ui = VBox([
-    tabs,
-    HBox([run_button, reset_button]),
-    output
-])
-display(ui)
 
 # # Display interface
 # #display(VBox([HBox([feedstock_acc, process_acc]), HBox([run_button, reset_button]), output]))
