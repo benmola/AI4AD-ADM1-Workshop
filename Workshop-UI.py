@@ -189,9 +189,9 @@ reset_button.on_click(on_reset_clicked)
 
 #display(VBox([HBox([feedstock_acc, process_acc]), HBox([run_button, reset_button]), output]))
 
-ui = VBox([
+display(
     HBox([feedstock_acc, process_acc]), 
     HBox([run_button, reset_button]), 
     output
-])
-display(ui)
+)
+
