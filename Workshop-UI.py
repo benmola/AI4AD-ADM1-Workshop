@@ -187,4 +187,4 @@ run_button.on_click(on_run_clicked)
 reset_button.on_click(on_reset_clicked)
 
 # Display interface
-display(VBox([HBox([feedstock_acc, process_acc]), HBox([run_button, reset_button]), output]))
+display(VBox([HBox([feedstock_section, process_section]), HBox([run_button, reset_button]), output]))
