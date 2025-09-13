@@ -144,7 +144,7 @@ def run_adm1(maize_silage, grass_silage, food_waste, cattle_slurry, V, Q, T, sim
 # Output widget
 output = Output()
 
-# Updated sliders - REMOVED HRT slider, added simulation period
+# Updated sliders -  added simulation period
 maize_slider = FloatSlider(min=0, max=100, step=5, value=50, description='Maize Silage')
 grass_slider = FloatSlider(min=0, max=100, step=10, value=30, description='Grass Silage')
 food_slider = FloatSlider(min=0, max=100, step=10, value=10, description='Food Waste')
@@ -156,9 +156,9 @@ sim_period_slider = FloatSlider(min=50, max=100, step=5, value=70, description='
 
 # Group into accordions
 feedstock_acc = Accordion(children=[VBox([maize_slider, grass_slider, food_slider, cattle_slider])])
-feedstock_acc.set_title(0, 'Feedstock Mix (%)')
+feedstock_acc.set_title(1, 'Feedstock Mix (%)')
 process_acc = Accordion(children=[VBox([v_slider, q_slider, t_slider, sim_period_slider])])
-process_acc.set_title(0, 'Process Parameters')
+process_acc.set_title(1, 'Process Parameters')
 
 # Buttons
 run_button = Button(description='Run Simulation')
