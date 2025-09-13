@@ -188,10 +188,6 @@ reset_button.on_click(on_reset_clicked)
 # Display interface
 
 #display(VBox([HBox([feedstock_acc, process_acc]), HBox([run_button, reset_button]), output]))
+display(feedstock_acc, process_acc, HBox([run_button, reset_button]), output)
 
-display(
-    HBox([feedstock_acc, process_acc]), 
-    HBox([run_button, reset_button]), 
-    output
-)
 
