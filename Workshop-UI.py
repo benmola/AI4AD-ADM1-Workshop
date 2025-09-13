@@ -1,3 +1,8 @@
+# !git clone https://github.com/benmola/AI4AD-ADM1-Workshop..git
+# %cd AI4AD-ADM1-Workshop.
+
+# !pip install -r requirements.txt -q
+
 from ADM1 import ADM1Simulator
 import plotly.graph_objects as go
 import plotly.io as pio
@@ -9,14 +14,14 @@ from tqdm import tqdm
 import os
 
 # Set Plotly renderer for better compatibility in Colab/Colab
-pio.renderers.default = 'colab'
+pio.renderers.default = 'colab'  # Use 'notebook' for classic Jupyter if needed
 
 def get_feedstock_ratios(maize_silage, grass_silage, food_waste, cattle_slurry):
     ratios = {
-        'Maize Silage': maize_silage/100,
-        'Grass Silage': grass_silage/100,
-        'Food Waste': food_waste/100,
-        'Cattle Slurry': cattle_slurry/100
+        'Maize Silage': maize_silage,
+        'Grass Silage': grass_silage,
+        'Food Waste': food_waste,
+        'Cattle Slurry': cattle_slurry
     }
     total = sum(ratios.values())
     if total == 0:
@@ -25,17 +30,11 @@ def get_feedstock_ratios(maize_silage, grass_silage, food_waste, cattle_slurry):
     if abs(sum(normalized.values()) - 1) > 0.01:
         print('⚠️ Warning: Normalized ratios do not sum to exactly 1 (possible rounding issue).')
     return normalized
-
-def run_adm1(maize_silage, grass_silage, food_waste, cattle_slurry, V, Q, T, sim_days, output):
+def run_adm1(maize_silage, grass_silage, food_waste, cattle_slurry, HRT, V, Q, T, output):
     with output:
         clear_output(wait=True)
         ratios = get_feedstock_ratios(maize_silage, grass_silage, food_waste, cattle_slurry)
-        
-        # Calculate actual HRT from V and Q
-        actual_HRT = V / Q
-        days = int(sim_days)  # Use simulation period instead of HRT
-        
-        
+        days = int(HRT)
         simulator = ADM1Simulator(ratios, days=days, Q=Q, V=V, T=T)
 
         # Simulate with progress bar
@@ -48,21 +47,28 @@ def run_adm1(maize_silage, grass_silage, food_waste, cattle_slurry, V, Q, T, sim
             print('❌ Simulation returned no data.')
             return
 
-        # Steady-state summary - TRANSPOSED
+        # Patch for compatibility
+        if 'V' not in output_data.columns:
+            output_data['V'] = V
+
+        # Steady-state summary as styled table (Process Indicators only for non-time-series)
         summary_data = {
-            'pH': [output_data['pH'].iloc[-1]],
-            'FOS': [output_data['FOS'].iloc[-1]],
-            'TAC': [output_data['TAC'].iloc[-1]],
-            'FOS/TAC': [output_data['FOS/TAC'].iloc[-1]],
-            'Gas Pressure': [output_data['p_gas'].iloc[-1]],
-            'HRT (V/Q)': [output_data['HRT'].iloc[-1]]
+            'Process Indicator': ['pH', 'FOS', 'TAC', 'FOS/TAC', 'Gas Pressure'],
+            'Steady-State Value': [
+                output_data['pH'].iloc[-1],
+                output_data['FOS'].iloc[-1],
+                output_data['TAC'].iloc[-1],
+                output_data['FOS/TAC'].iloc[-1],
+                output_data['p_gas'].iloc[-1]
+            ]
         }
-        summary_df = pd.DataFrame(summary_data, index=['Steady-State Value'])
+        summary_df = pd.DataFrame(summary_data)
+        # Apply enhanced styling
         styled_summary = summary_df.style \
-            .format('{:.2f}') \
-            .background_gradient(cmap='viridis', axis=1) \
+            .format({'Steady-State Value': '{:.2f}'}) \
+            .background_gradient(cmap='viridis', subset=['Steady-State Value']) \
             .set_properties(**{'font-size': '10pt', 'border': '1px solid black'}) \
-            .set_caption('📊 Steady-State Process Indicators') \
+            .set_caption('📊 Steady-State Process Indicators (Biogas Plant Style)') \
             .set_table_styles([
                 {'selector': 'th',
                  'props': [('background-color', '#4CAF50'), ('color', 'white'), ('font-weight', 'bold')]},
@@ -72,13 +78,17 @@ def run_adm1(maize_silage, grass_silage, food_waste, cattle_slurry, V, Q, T, sim
                  'props': [('caption-side', 'top'), ('font-size', '1.2em'), ('font-weight', 'bold')]}
             ])
 
+
         display(styled_summary)
 
-        # Animated Plotly plots
+        # Animated Plotly plots for Biogas and Methane only (Outputs)
         fig = go.Figure()
+
+        # Initial traces (empty for animation start)
         fig.add_trace(go.Scatter(x=[], y=[], mode='lines', name='Methane Flow (Output)', line=dict(color='blue', width=2)))
         fig.add_trace(go.Scatter(x=[], y=[], mode='lines', name='Biogas Flow (Output)', line=dict(color='purple', width=2)))
 
+        # Layout with animation controls
         max_time = output_data['time'].max()
         max_flow = max(output_data['q_gas'].max(), output_data['q_ch4'].max()) * 1.1
         fig.update_layout(
@@ -110,9 +120,10 @@ def run_adm1(maize_silage, grass_silage, food_waste, cattle_slurry, V, Q, T, sim
                 'y': 0,
                 'yanchor': 'top'
             }],
-            hovermode='x unified'
+            hovermode='x unified'  # Better interactivity
         )
 
+        # Animation frames (build incrementally for real-time feel)
         frames = [go.Frame(
             data=[
                 go.Scatter(x=output_data['time'][:k], y=output_data['q_ch4'][:k], mode='lines', name='Methane Flow (Output)'),
@@ -139,20 +150,20 @@ def run_adm1(maize_silage, grass_silage, food_waste, cattle_slurry, V, Q, T, sim
 # Output widget
 output = Output()
 
-# Updated sliders - REMOVED HRT slider, added simulation period
-maize_slider = FloatSlider(min=0, max=100, step=5, value=50, description='Maize Silage')
-grass_slider = FloatSlider(min=0, max=100, step=10, value=30, description='Grass Silage')
-food_slider = FloatSlider(min=0, max=100, step=10, value=10, description='Food Waste')
-cattle_slider = FloatSlider(min=0, max=100, step=10, value=10, description='Cattle Slurry')
-v_slider = FloatSlider(min=1000, max=10000, step=500, value=7000, description='Volume (m³)')
-q_slider = FloatSlider(min=50, max=500, step=10, value=136.63, description='Flow Q (m³/d)')
-t_slider = FloatSlider(min=25, max=65, step=1, value=45, description='Temp (°C)')
-sim_period_slider = FloatSlider(min=50, max=100, step=5, value=70, description='Sim Days')
+# Sliders
+maize_slider = FloatSlider(min=0, max=1, step=0.1, value=0.5, description='Maize Silage')
+grass_slider = FloatSlider(min=0, max=1, step=0.1, value=0.3, description='Grass Silage')
+food_slider = FloatSlider(min=0, max=1, step=0.1, value=0.1, description='Food Waste')
+cattle_slider = FloatSlider(min=0, max=1, step=0.1, value=0.1, description='Cattle Slurry')
+hrt_slider = FloatSlider(min=10, max=80, step=2, value=48, description='HRT (days)')
+v_slider = FloatSlider(min=1000, max=10000, step=500, value=6520, description='V (m³)')
+q_slider = FloatSlider(min=50, max=500, step=10, value=136.63, description='Q (m³/d)')
+t_slider = FloatSlider(min=15, max=60, step=1, value=45, description='T (°C)')
 
 # Group into accordions
 feedstock_acc = Accordion(children=[VBox([maize_slider, grass_slider, food_slider, cattle_slider])])
-feedstock_acc.set_title(0, 'Feedstock Mix (%)')
-process_acc = Accordion(children=[VBox([v_slider, q_slider, t_slider, sim_period_slider])])
+feedstock_acc.set_title(0, 'Feedstock Ratios')
+process_acc = Accordion(children=[VBox([hrt_slider, v_slider, q_slider, t_slider])])
 process_acc.set_title(0, 'Process Parameters')
 
 # Buttons
@@ -161,17 +172,17 @@ reset_button = Button(description='Reset Sliders')
 
 def on_run_clicked(b):
     run_adm1(maize_slider.value, grass_slider.value, food_slider.value, cattle_slider.value,
-             v_slider.value, q_slider.value, t_slider.value, sim_period_slider.value, output)
+             hrt_slider.value, v_slider.value, q_slider.value, t_slider.value, output)
 
 def on_reset_clicked(b):
-    maize_slider.value = 50
-    grass_slider.value = 30
-    food_slider.value = 10
-    cattle_slider.value = 10
-    v_slider.value = 7000
+    maize_slider.value = 0.5
+    grass_slider.value = 0.3
+    food_slider.value = 0.1
+    cattle_slider.value = 0.1
+    hrt_slider.value = 48
+    v_slider.value = 6520
     q_slider.value = 136.63
     t_slider.value = 45
-    sim_period_slider.value = 150
     with output:
         clear_output(wait=True)
         print('Sliders reset to defaults.')
