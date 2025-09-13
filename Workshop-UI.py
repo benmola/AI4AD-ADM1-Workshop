@@ -13,8 +13,8 @@ from IPython.display import display, FileLink, clear_output
 from tqdm import tqdm
 import os
 
-# Set Plotly renderer for better compatibility in Colab/Colab
-pio.renderers.default = 'colab'
+# # Set Plotly renderer for better compatibility in Colab/Colab
+# pio.renderers.default = 'colab'
 
 def get_feedstock_ratios(maize_silage, grass_silage, food_waste, cattle_slurry):
     ratios = {
