@@ -155,27 +155,17 @@ t_slider = FloatSlider(min=25, max=65, step=1, value=45, description='Temp (°C)
 sim_period_slider = FloatSlider(min=50, max=100, step=5, value=70, description='Sim Days')
 
 # # Group into accordions
-# feedstock_box = VBox([maize_slider, grass_slider, food_slider, cattle_slider])
-# feedstock_acc = Accordion(children=[feedstock_box])
-# feedstock_acc.set_title(0, 'Feedstock Mix (%)')
-# feedstock_acc.selected_index = None  # <-- keeps it collapsed by default (title always visible)
-
-# process_box = VBox([v_slider, q_slider, t_slider, sim_period_slider])
-# process_acc = Accordion(children=[process_box])
-# process_acc.set_title(0, 'Process Parameters')
-# process_acc.selected_index = None
-
-
-
-from ipywidgets import Tab
-
-# Group into Tabs instead of Accordions
 feedstock_box = VBox([maize_slider, grass_slider, food_slider, cattle_slider])
-process_box   = VBox([v_slider, q_slider, t_slider, sim_period_slider])
+feedstock_acc = Accordion(children=[feedstock_box])
+feedstock_acc.set_title(0, 'Feedstock Mix (%)')
+feedstock_acc.selected_index = None  # <-- keeps it collapsed by default (title always visible)
 
-tabs = Tab(children=[feedstock_box, process_box])
-tabs.set_title(0, 'Feedstock Mix (%)')
-tabs.set_title(1, 'Process Parameters')
+process_box = VBox([v_slider, q_slider, t_slider, sim_period_slider])
+process_acc = Accordion(children=[process_box])
+process_acc.set_title(0, 'Process Parameters')
+process_acc.selected_index = None
+
+
 
 
 # --- Buttons remain the same ---
@@ -212,7 +202,7 @@ display(ui)
 
 # # Display interface
 # #display(VBox([HBox([feedstock_acc, process_acc]), HBox([run_button, reset_button]), output]))
-# display(HBox([feedstock_acc, process_acc]), HBox([run_button, reset_button]), output)
+display(HBox([feedstock_acc, process_acc]), HBox([run_button, reset_button]), output)
 
 
 
