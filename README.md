@@ -20,7 +20,7 @@ The primary notebook (**PyADM1-R4-Workshop.ipynb**) introduces a simplified ADM1
 - **Notebooks**:
   - **PyADM1-R4-Workshop.ipynb**: Main tutorial on ADM1 mechanics, influent setup, and result analysis.
   - **UI-Workshop.ipynb**: Optional interactive interface with sliders for feedstock ratios and parameters.
-- **Outputs**: Interactive plots (via Plotly), summary tables, and CSV exports for methane/biogas flows, pH, and stability metrics.
+- **Outputs**: Interactive plots (via Plotly), summary plots for methane/biogas flows, pH, and stability metrics.
 - **No Installation Needed**: Run in Google Colab or locally with Jupyter.
 
 ## Quick Start
