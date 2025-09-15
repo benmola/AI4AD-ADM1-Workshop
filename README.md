@@ -7,7 +7,7 @@
 ## Overview
 This repository provides an interactive workshop for biogas researchers, AD plant operators, consultants, and sustainability professionals to explore anaerobic digestion (AD) modeling using the Anaerobic Digestion Model No. 1 (ADM1). The core focus is on mechanistic simulation of biogas production and process stability through Python-based notebooks. No prior coding experience is required—run simulations directly in Jupyter or Google Colab to test feedstock mixes, operating conditions, and visualize outcomes.
 
-The primary notebook (**PyADM1-R4-Workshop.ipynb**) introduces a simplified ADM1 implementation for hands-on experimentation with digester dynamics. An additional interactive UI (**UI-Workshop.ipynb**) offers sliders for quick scenario testing as an extra feature.
+The primary notebook (**[PyADM1-R4-Workshop.ipynb](https://colab.research.google.com/github/benmola/AI4AD-ADM1-Workshop/blob/main/PyADM1-R4-Workshop.ipynb)**) introduces a simplified ADM1 implementation for hands-on experimentation with digester dynamics. An additional interactive UI (**[UI-Workshop.ipynb](https://colab.research.google.com/github/benmola/AI4AD-ADM1-Workshop/blob/main/UI-Workshop.ipynb)**) offers sliders for quick scenario testing as an extra feature.
 
 ## Purpose
 - Simulate AD processes to predict methane yield, pH stability, and FOS/TAC ratios.
@@ -18,8 +18,8 @@ The primary notebook (**PyADM1-R4-Workshop.ipynb**) introduces a simplified ADM1
 ## Key Features
 - **ADM1 Simulator**: Core Python code in `ADM1.py` for running simulations.
 - **Notebooks**:
-  - **PyADM1-R4-Workshop.ipynb**: Main tutorial on ADM1 mechanics, influent setup, and result analysis.
-  - **UI-Workshop.ipynb**: Optional interactive interface with sliders for feedstock ratios and parameters.
+  - **[PyADM1-R4-Workshop.ipynb](https://colab.research.google.com/github/benmola/AI4AD-ADM1-Workshop/blob/main/PyADM1-R4-Workshop.ipynb)**: Main tutorial on ADM1 mechanics, influent setup, and result analysis.
+  - **[UI-Workshop.ipynb](https://colab.research.google.com/github/benmola/AI4AD-ADM1-Workshop/blob/main/UI-Workshop.ipynb)**: Optional interactive interface with sliders for feedstock ratios and parameters.
 - **Outputs**: Interactive plots (via Plotly), summary plots for methane/biogas flows, pH, and stability metrics.
 - **No Installation Needed**: Run in Google Colab or locally with Jupyter.
 
@@ -27,7 +27,7 @@ The primary notebook (**PyADM1-R4-Workshop.ipynb**) introduces a simplified ADM1
 1. Clone the repo: `git clone https://github.com/benmola/AI4AD-ADM1-Workshop.git`
 2. Navigate: `cd AI4AD-ADM1-Workshop`
 3. Install dependencies: `pip install -r requirements.txt`
-4. Open and run **PyADM1-R4-Workshop.ipynb** (main) or **UI-Workshop.ipynb** (interactive) in Jupyter/Colab.
+4. Open and run **[PyADM1-R4-Workshop.ipynb](https://colab.research.google.com/github/benmola/AI4AD-ADM1-Workshop/blob/main/PyADM1-R4-Workshop.ipynb)** (main) or **[UI-Workshop.ipynb](https://colab.research.google.com/github/benmola/AI4AD-ADM1-Workshop/blob/main/UI-Workshop.ipynb)** (interactive) in Jupyter/Colab.
 5. Adjust feedstocks/parameters and simulate—results include animated plots and steady-state summaries.
 
 ## Requirements
