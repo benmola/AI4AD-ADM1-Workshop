@@ -22,7 +22,7 @@ class ADM1Simulator:
         self.V = V
         self.T = T + 273.15  # Convert to Kelvin
         self.V_liq = V
-        self.V_gas = 0.1 * V  # Assuming 10% gas volume
+        self.V_gas = 0.3 * V  # Assuming 10% gas volume
         self.simulate_results = None
         self.output_data = None
         self.gasflow = None
@@ -641,6 +641,7 @@ class ADM1Simulator:
         self.gasflow.to_csv("dynamic_gas_flow_rates.csv", index=False)
         self.pressure.to_csv("dynamic_pressure_rates.csv", index=False)
         print(f"Results saved.")
+
 
 
 
