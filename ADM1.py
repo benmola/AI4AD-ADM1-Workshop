@@ -6,7 +6,7 @@ import matplotlib.pyplot as plt
 from scipy import integrate
 import time
 
-class DigesterSimulator:
+class ADM1Simulator:
     def __init__(self, feedstock_ratios, days=100, Q=0.044, V=6.6, T=35):
         """
         Initialize the simulator with feedstock ratios and simulation parameters.
@@ -635,3 +635,4 @@ class DigesterSimulator:
         self.vta.to_csv("vfa_ta_ratio.csv", index=False)
         self.gasflow.to_csv("dynamic_gas_flow_rates.csv", index=False)
         print(f"Results saved.")
+
