@@ -18,7 +18,7 @@ class ADM1Simulator:
         self.Q = Q
         self.V_liq = V
         self.V_gas = V*0.3
-        self.V_ad = V_liq + V_gas
+        self.V_ad = self.V_liq + self.V_gas
         self.T_op = T + 273.15  # Convert to Kelvin
         self.simulate_results = None
         self.output_data = None
