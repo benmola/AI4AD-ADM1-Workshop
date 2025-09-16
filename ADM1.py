@@ -47,50 +47,38 @@ class ADM1Simulator:
         }
 
     def run_codigestion(self):
-        """Create a table of mixed feedstock properties for the simulation."""
-        # Map characteristic names to ADM1 variable names
-        mapped_names = [self.column_mapping.get(char, char) for char in self.characteristics]
-        
-        # Initialize a dictionary to store mixed values for each day
-        mix_values = {name: [0] * self.days for name in mapped_names}
-        
-        # Calculate weighted average for each characteristic
-        for char, mapped_name in zip(self.characteristics, mapped_names):
-            # Get the index of the characteristic in feedstock data
-            char_index = self.characteristics.index(char)
-            # Compute the mixed value for this characteristic
-            mixed_value = 0
-            for feed in self.feedstocks:
-                # Get the value for this feedstock and characteristic
-                feed_value = self.feedstock_data[feed][char_index]
-                # Get the ratio for this feedstock (default to 0 if not provided)
-                feed_ratio = self.feedstock_ratios.get(feed, 0.0)
-                # Add the weighted contribution
-                mixed_value += feed_value * feed_ratio
-            # Assign the same mixed value for all days
-            mix_values[mapped_name] = [mixed_value] * self.days
-        
-        # Add simulation parameters (time, flow rate, volume, temperature)
-        mix_values['time'] = list(range(self.days))
-        mix_values['Q'] = [self.Q] * self.days
-        mix_values['V'] = [self.V] * self.days
-        mix_values['T'] = [self.T] * self.days
+        """Generate influent DataFrame from feedstock ratios and composition."""
+        # Weighted sum for each characteristic
+        renamed_characteristics = [self.column_mapping.get(char, char) for char in self.characteristics]
+        codigested_values = {new_char: [] for new_char in renamed_characteristics}
+        for day in range(self.days):
+            for char, new_char in zip(self.characteristics, renamed_characteristics):
+                char_values = []
+                for feed in self.feedstocks:
+                    idx = self.characteristics.index(char)
+                    value = self.feedstock_data[feed][idx]
+                    ratio = self.feedstock_ratios.get(feed, 0.0)
+                    char_values.append(ratio * value)
+                weighted_value = sum(char_values)
+                codigested_values[new_char].append(weighted_value)
+        # Add time, Q, V, T columns
+        codigested_values['time'] = list(range(self.days))
+        codigested_values['Q'] = [self.Q] * self.days
+        codigested_values['V'] = [self.V] * self.days
+        codigested_values['T'] = [self.T] * self.days
 
-        # Define all required columns for the simulation
-        required_columns = [
+        # Template columns for ADM1
+        template_columns = [
             'time', 'S_su', 'S_aa', 'S_fa', 'S_va', 'S_bu', 'S_pro', 'S_ac', 'S_h2', 'S_ch4', 
             'S_IC', 'S_IN', 'S_h2o', 'X_ch', 'X_pr', 'X_li', 'X_su', 'X_aa', 'X_fa', 'X_va', 
-            'X_bu', 'X_pro', 'X_ac', 'X_h2', 'S_cation', 'S_anion', 'Q', 'T', 'V',
+            'X_bu', 'X_pro', 'X_ac', 'X_h2', 'S_cation', 'S_anion', 'Q', 'T', 'V',  # Added 'V' here
             'S_va_ion', 'S_bu_ion', 'S_pro_ion', 'S_ac_ion', 'S_hco3_ion', 'S_nh3', 
             'S_gas_h2', 'S_gas_ch4', 'S_gas_co2', 'pH'
         ]
-        
-        # Create a DataFrame with all required columns, filling missing ones with 0
-        result_table = pd.DataFrame()
-        for col in required_columns:
-            result_table[col] = mix_values.get(col, [0] * self.days)
-        
-        return result_table
+        result_df = pd.DataFrame()
+        for col in template_columns:
+            result_df[col] = codigested_values[col] if col in codigested_values else 0
+        return result_df
 
     def run_simulation(self, influent_df):
         """Run the ADM1 simulation using the influent DataFrame."""
@@ -154,7 +142,7 @@ class ADM1Simulator:
             0.007981285, 0.002492329, 0.024244036, 0.009391295, 0.009903645, 0.008043775, 0.041508584, 
             3.90797E-07, 0.020440103, 8.09018482, 1.051553699, 712.4058052, 19.83759232, 2.947358352, 
             2.437441052, 8.674399317, 1.060185924, 0.584681747, 0.178793053, 0.826209004, 0.9451213, 
-            3.43436471, 1.864492601, 0.128208453, 0.019407639, 0.00935897, 0.008014261, 
+            3.43436471, 1.864492601, 0.128208453, 0.019407639, 0.00935897, 0.009872404, 0.008014261, 
             0.04139487, 7.399735346, 0.025135342, 5.5933E-07, 0.420001299, 1.001769258
         ]
         columns = ["S_su", "S_aa", "S_fa", "S_va", "S_bu", "S_pro", "S_ac", "S_h2", "S_ch4", "S_IC", 
@@ -331,6 +319,7 @@ class ADM1Simulator:
             q_gas = k_p * (p_gas - p_atm) * p_gas / p_atm
             q_ch4 = q_gas * (p_ch4 / p_gas)
 
+           
             S_nh4_i = S_IN - S_nh3
             S_co2 = S_IC - S_hco3_ion
             phi = S_cation + S_nh4_i/17 - S_hco3_ion/44 - S_ac_ion/60 - S_pro_ion/74 - S_bu_ion/88 - S_va_ion/102 - S_anion
@@ -382,3 +371,4 @@ class ADM1Simulator:
             self.simulate_results.to_excel(writer, sheet_name='ADM1_States', index=False)
             self.output_data.to_excel(writer, sheet_name='Process_Data', index=False)
         print(f"Simulation results saved to {file_path}")
+
