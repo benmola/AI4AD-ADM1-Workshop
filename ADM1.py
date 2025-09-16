@@ -603,8 +603,8 @@ class ADM1Simulator:
             dfstate_zero = pd.DataFrame([state_zero], columns=columns)
             simulate_results = pd.concat([simulate_results, dfstate_zero], ignore_index=True)
             gasflow = pd.concat([gasflow, pd.DataFrame({'time': [t[i]], 'q_gas': [q_gas], 'q_ch4': [q_ch4]})], ignore_index=True)
-            vta = pd.concat([vta, pd.DataFrame({'time': [t[i]], 'VFA': [VFA], 'TA': [TA], 'VFA_TA': [VFA_TA]})], ignore_index=True)
-            output_list.append({'time': t[i], 'q_gas': q_gas, 'q_ch4': q_ch4, 'pH': pH, 'OLR': OLR, 'VFA': VFA, 'TA': TA, 'VFA_TA': VFA_TA})
+            vta = pd.concat([vta, pd.DataFrame({'time': [t[i]], 'FOS': [FOS], 'TAC': [TAC], 'FOS_TAC': [FOS_TAC]})], ignore_index=True)
+            output_list.append({'time': t[i], 'q_gas': q_gas, 'q_ch4': q_ch4, 'pH': pH, 'OLR': OLR, 'FOS': FOS, 'TAC': TAC, 'FOS_TAC': FOS_TAC})
             t0 = t[i]
         self.simulate_results = simulate_results
         self.gasflow = gasflow
@@ -635,4 +635,5 @@ class ADM1Simulator:
         self.vta.to_csv("vfa_ta_ratio.csv", index=False)
         self.gasflow.to_csv("dynamic_gas_flow_rates.csv", index=False)
         print(f"Results saved.")
+
 
