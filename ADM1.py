@@ -599,6 +599,7 @@ class ADM1Simulator:
             TAC = S_anion + S_hco3_ion + S_ac + S_pro + S_bu + S_va + S_cation
             FOS_TAC = FOS / TAC if TAC != 0 else 0
             total_cod_in = sum([row[col] for col in influent_columns if col not in ['S_IC', 'S_IN', 'S_cation', 'S_anion']])
+            HRT = self.V_liq / self.Q
             OLR = total_cod_in * self.Q / self.V_liq
             # Append to results
             dfstate_zero = pd.DataFrame([state_zero], columns=columns)
@@ -606,7 +607,7 @@ class ADM1Simulator:
             gasflow = pd.concat([gasflow, pd.DataFrame({'time': [t[i]], 'q_gas': [q_gas], 'q_ch4': [q_ch4]})], ignore_index=True)
             pressure = pd.concat([pressure, pd.DataFrame({'time': [t[i]],  'p_gas_ch4': [p_gas_ch4], 'p_gas_co2':[p_gas_co2], 'p_gas_h2': [p_gas_h2], 'p_gas': [p_gas]})], ignore_index=True)
             vta = pd.concat([vta, pd.DataFrame({'time': [t[i]], 'FOS': [FOS], 'TAC': [TAC], 'FOS/TAC': [FOS_TAC]})], ignore_index=True)
-            output_list.append({'time': t[i],'p_gas':p_gas, 'q_gas': q_gas, 'q_ch4': q_ch4, 'pH': pH, 'OLR': OLR, 'FOS': FOS, 'TAC': TAC, 'FOS/TAC': FOS_TAC})
+            output_list.append({'time': t[i],'p_gas':p_gas, 'q_gas': q_gas, 'q_ch4': q_ch4, 'pH': pH,'HRT': HRT ,'OLR': OLR, 'FOS': FOS, 'TAC': TAC, 'FOS/TAC': FOS_TAC})
             t0 = t[i]
         self.simulate_results = simulate_results
         self.gasflow = gasflow
@@ -614,7 +615,8 @@ class ADM1Simulator:
         self.vta = vta
         self.output_data = pd.DataFrame(output_list)
         initial_pH = -np.log10(self.initial_state[26])
-        initial_output = {'time': 0,'p_gas': 0, 'q_gas': 0, 'q_ch4': 0, 'pH': initial_pH, 'OLR': 0, 'FOS': 0, 'TAC': 0, 'FOS/TAC': 0}
+        HRT_int = self.V_liq / self.Q
+        initial_output = {'time': 0,'p_gas': 0, 'q_gas': 0, 'q_ch4': 0, 'pH': initial_pH,'HRT':HRT_int , 'OLR': 0, 'FOS': 0, 'TAC': 0, 'FOS/TAC': 0}
         self.output_data = pd.concat([pd.DataFrame([initial_output]), self.output_data], ignore_index=True)
         self.simulate_results['pH'] = -np.log10(self.simulate_results['S_H_ion'])
 
@@ -639,6 +641,7 @@ class ADM1Simulator:
         self.gasflow.to_csv("dynamic_gas_flow_rates.csv", index=False)
         self.pressure.to_csv("dynamic_pressure_rates.csv", index=False)
         print(f"Results saved.")
+
 
 
 
