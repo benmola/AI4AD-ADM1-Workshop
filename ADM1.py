@@ -3,7 +3,7 @@ import pandas as pd
 import scipy.integrate
 
 class ADM1Simulator:
-    def __init__(self, feedstock_ratios, days=100, Q=0.044, V_liq=6.6, V_gas=0.66, T=35):
+    def __init__(self, feedstock_ratios, days=100, Q=0.044, V=6.6, T=35):
         """
         Initialize the simulator with feedstock ratios and simulation parameters.
         feedstock_ratios: dict with keys as feedstock names and values as ratios (sum to 1)
@@ -16,8 +16,8 @@ class ADM1Simulator:
         self.feedstock_ratios = feedstock_ratios
         self.days = days
         self.Q = Q
-        self.V_liq = V_liq
-        self.V_gas = V_gas
+        self.V_liq = V
+        self.V_gas = V*0.3
         self.V_ad = V_liq + V_gas
         self.T_op = T + 273.15  # Convert to Kelvin
         self.simulate_results = None
