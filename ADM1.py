@@ -26,7 +26,7 @@ class ADM1Simulator:
             "Maize Silage": [202.5, 16.1, 11.8, 2.6, 0.364, 0.56, 0.2, 1.583, 718, 0.15, 0.02],
             "Grass Silage": [177.8, 10.8, 1.4, 3.9, 0.361, 0.893, 0.292, 1.71, 941, 0.15, 0.02],
             "Food Waste": [177.8, 5.6, 6.1, 4.29, 1.056, 0.924, 0.33, 1.378, 775, 0.07, 0.02],
-            "Cattle Slurry": [177.8, 82.7, 35.4, 0.45, 0.112, 0.098, 0.035, 1.378, 156, 0.07, 0.02]
+            "Cattle Slurry": [177.8, 42.7, 15.4, 0.85, 0.212, 0.198, 0.235, 1.378, 356, 0.07, 0.02]
         }
         self.characteristics = [
             'carbohydrates', 'proteins', 'lipids',
@@ -293,4 +293,5 @@ class ADM1Simulator:
             self.simulate_results.to_excel(writer, sheet_name='ADM1_R3_States', index=False)
             self.output_data.to_excel(writer, sheet_name='Process_Data', index=False)
         print(f"Simulation results saved to {file_path}")
+
 
