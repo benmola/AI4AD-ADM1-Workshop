@@ -125,16 +125,16 @@ def run_adm1(maize_silage, grass_silage, food_waste, cattle_slurry, V, Q, T, sim
 output = Output()
 
 # Feedstock sliders
-maize_slider = FloatSlider(min=0, max=100, step=5, value=50, description='🌽 Maize:', style={'description_width': '120px'})
-grass_slider = FloatSlider(min=0, max=100, step=10, value=30, description='🌿 Grass:', style={'description_width': '120px'})
+maize_slider = FloatSlider(min=0, max=100, step=5, value=50, description='🌽 Maize Silage:', style={'description_width': '120px'})
+grass_slider = FloatSlider(min=0, max=100, step=10, value=30, description='🌿 Grass Silage:', style={'description_width': '120px'})
 food_slider = FloatSlider(min=0, max=100, step=10, value=10, description='🍎 Food Waste:', style={'description_width': '120px'})
 cattle_slider = FloatSlider(min=0, max=100, step=10, value=10, description='🐄 Cattle Slurry:', style={'description_width': '120px'})
 
 # Process parameter sliders
-v_slider = FloatSlider(min=1000, max=10000, step=500, value=7000, description='Volume:', style={'description_width': '100px'})
-q_slider = FloatSlider(min=50, max=500, step=10, value=136.63, description='Flow Rate:', style={'description_width': '100px'})
-t_slider = FloatSlider(min=25, max=65, step=1, value=45, description='Temperature:', style={'description_width': '100px'})
-sim_period_slider = FloatSlider(min=50, max=100, step=5, value=70, description='Sim Period:', style={'description_width': '100px'})
+v_slider = FloatSlider(min=1000, max=10000, step=500, value=7000, description='Volume (V, m³):', style={'description_width': '100px'})
+q_slider = FloatSlider(min=50, max=500, step=10, value=136.63, description='Flow Rate (Q, m³/day):', style={'description_width': '100px'})
+t_slider = FloatSlider(min=25, max=65, step=1, value=45, description='Temperature (T, °C):', style={'description_width': '100px'})
+sim_period_slider = FloatSlider(min=50, max=100, step=5, value=70, description='Simulation Days:', style={'description_width': '100px'})
 
 # Simple layout without accordions
 feedstock_title = Output()
