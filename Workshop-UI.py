@@ -1,8 +1,3 @@
-# !git clone https://github.com/benmola/AI4AD-ADM1-Workshop..git
-# %cd AI4AD-ADM1-Workshop.
-
-# !pip install -r requirements.txt -q
-
 from ADM1 import ADM1Simulator
 import plotly.graph_objects as go
 import plotly.io as pio
@@ -13,8 +8,7 @@ from IPython.display import display, FileLink, clear_output
 from tqdm import tqdm
 import os
 
-# # Set Plotly renderer for better compatibility in Colab/Colab
-# pio.renderers.default = 'colab'
+
 
 def get_feedstock_ratios(maize_silage, grass_silage, food_waste, cattle_slurry):
     ratios = {
