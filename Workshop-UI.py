@@ -158,12 +158,12 @@ sim_period_slider = FloatSlider(min=50, max=100, step=5, value=70, description='
 feedstock_box = VBox([maize_slider, grass_slider, food_slider, cattle_slider])
 feedstock_acc = Accordion(children=[feedstock_box])
 feedstock_acc.set_title(0, 'Feedstock Mix (%)')
-feedstock_acc.selected_index = None  # <-- keeps it collapsed by default (title always visible)
+#feedstock_acc.selected_index = None  # <-- keeps it collapsed by default (title always visible)
 
 process_box = VBox([v_slider, q_slider, t_slider, sim_period_slider])
 process_acc = Accordion(children=[process_box])
 process_acc.set_title(0, 'Process Parameters')
-process_acc.selected_index = None
+#process_acc.selected_index = None
 
 
 
