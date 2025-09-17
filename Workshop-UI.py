@@ -1,9 +1,9 @@
-# --- ADM1 Interactive Simulation (Clean UI) ---
+# --- ADM1 Interactive Simulation (Accordion UI, Cleaned Style) ---
 
 from ADM1 import ADM1Simulator
 import plotly.graph_objects as go
 import pandas as pd
-from ipywidgets import FloatSlider, Button, VBox, HBox, Output, Label
+from ipywidgets import FloatSlider, Button, VBox, HBox, Output, Accordion
 from IPython.display import display, FileLink, clear_output
 from tqdm import tqdm
 
@@ -88,9 +88,16 @@ q_slider  = FloatSlider(min=50, max=500, step=10, value=140, description="Flow (
 t_slider  = FloatSlider(min=25, max=65, step=1, value=45, description="Temp (°C)")
 sim_slider = FloatSlider(min=50, max=200, step=10, value=150, description="Sim Days")
 
-# --- Group sliders with labels ---
-feedstock_box = VBox([Label("Feedstock Mix"), maize_slider, grass_slider, food_slider, cattle_slider])
-process_box   = VBox([Label("Process Parameters"), v_slider, q_slider, t_slider, sim_slider])
+# --- Group into accordions (kept as before) ---
+feedstock_box = VBox([maize_slider, grass_slider, food_slider, cattle_slider])
+feedstock_acc = Accordion(children=[feedstock_box])
+feedstock_acc.set_title(0, "Feedstock Mix (%)")
+feedstock_acc.selected_index = None  # collapsed by default
+
+process_box = VBox([v_slider, q_slider, t_slider, sim_slider])
+process_acc = Accordion(children=[process_box])
+process_acc.set_title(0, "Process Parameters")
+process_acc.selected_index = None  # collapsed by default
 
 # --- Buttons ---
 run_button   = Button(description="Run Simulation")
@@ -111,10 +118,4 @@ run_button.on_click(on_run_clicked)
 reset_button.on_click(on_reset_clicked)
 
 # --- Final Layout ---
-ui = VBox([
-    HBox([feedstock_box, process_box]),
-    HBox([run_button, reset_button]),
-    output
-])
-
-display(ui)
+display(HBox([feedstock_acc, process_acc]), HBox([run_button, reset_button]), output)
