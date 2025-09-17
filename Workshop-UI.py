@@ -1,20 +1,13 @@
-# !git clone https://github.com/benmola/AI4AD-ADM1-Workshop..git
-# %cd AI4AD-ADM1-Workshop.
-
-# !pip install -r requirements.txt -q
-
 from ADM1 import ADM1Simulator
 import plotly.graph_objects as go
 import plotly.io as pio
 import kaleido
 import pandas as pd
+import numpy as np
 from ipywidgets import FloatSlider, Button, VBox, HBox, Output, Accordion
 from IPython.display import display, FileLink, clear_output
 from tqdm import tqdm
 import os
-
-# # Set Plotly renderer for better compatibility in Colab/Colab
-# pio.renderers.default = 'colab'
 
 def get_feedstock_ratios(maize_silage, grass_silage, food_waste, cattle_slurry):
     ratios = {
@@ -27,8 +20,6 @@ def get_feedstock_ratios(maize_silage, grass_silage, food_waste, cattle_slurry):
     if total == 0:
         return ratios
     normalized = {k: v / total for k, v in ratios.items()}
-    if abs(sum(normalized.values()) - 1) > 0.01:
-        print('⚠️ Warning: Normalized ratios do not sum to exactly 1 (possible rounding issue).')
     return normalized
 
 def run_adm1(maize_silage, grass_silage, food_waste, cattle_slurry, V, Q, T, sim_days, output):
@@ -36,14 +27,11 @@ def run_adm1(maize_silage, grass_silage, food_waste, cattle_slurry, V, Q, T, sim
         clear_output(wait=True)
         ratios = get_feedstock_ratios(maize_silage, grass_silage, food_waste, cattle_slurry)
         
-        # Calculate actual HRT from V and Q
         actual_HRT = V / Q
-        days = int(sim_days)  # Use simulation period instead of HRT
-        
+        days = int(sim_days)
         
         simulator = ADM1Simulator(ratios, days=days, Q=Q, V=V, T=T)
 
-        # Simulate with progress bar
         with tqdm(total=days, desc='Simulating Days', disable=True) as pbar:
             simulator.run()
             pbar.update(days)
@@ -53,7 +41,7 @@ def run_adm1(maize_silage, grass_silage, food_waste, cattle_slurry, V, Q, T, sim
             print('❌ Simulation returned no data.')
             return
 
-        # Steady-state summary - TRANSPOSED
+        # Summary table
         summary_data = {
             'pH': [output_data['pH'].iloc[-1]],
             'FOS': [output_data['FOS'].iloc[-1]],
@@ -67,15 +55,7 @@ def run_adm1(maize_silage, grass_silage, food_waste, cattle_slurry, V, Q, T, sim
             .format('{:.2f}') \
             .background_gradient(cmap='viridis', axis=1) \
             .set_properties(**{'font-size': '10pt', 'border': '1px solid black'}) \
-            .set_caption('📊 Steady-State Process Indicators') \
-            .set_table_styles([
-                {'selector': 'th',
-                 'props': [('background-color', '#4CAF50'), ('color', 'white'), ('font-weight', 'bold')]},
-                {'selector': 'td',
-                 'props': [('text-align', 'center')]},
-                {'selector': 'caption',
-                 'props': [('caption-side', 'top'), ('font-size', '1.2em'), ('font-weight', 'bold')]}
-            ])
+            .set_caption('📊 Steady-State Process Indicators')
 
         display(styled_summary)
 
@@ -129,7 +109,7 @@ def run_adm1(maize_silage, grass_silage, food_waste, cattle_slurry, V, Q, T, sim
 
         fig.show()
 
-        # Export button
+        # Export functionality
         export_button = Button(description='Export Results to CSV')
         def on_export_clicked(b):
             filename = 'ADM1_results.csv'
@@ -144,29 +124,29 @@ def run_adm1(maize_silage, grass_silage, food_waste, cattle_slurry, V, Q, T, sim
 # Output widget
 output = Output()
 
-# Updated sliders -  added simulation period
-maize_slider = FloatSlider(min=0, max=100, step=5, value=50, description='Maize Silage')
-grass_slider = FloatSlider(min=0, max=100, step=10, value=30, description='Grass Silage')
-food_slider = FloatSlider(min=0, max=100, step=10, value=10, description='Food Waste')
-cattle_slider = FloatSlider(min=0, max=100, step=10, value=10, description='Cattle Slurry')
-v_slider = FloatSlider(min=1000, max=10000, step=500, value=7000, description='Volume (m³)')
-q_slider = FloatSlider(min=50, max=500, step=10, value=136.63, description='Flow Q (m³/d)')
-t_slider = FloatSlider(min=25, max=65, step=1, value=45, description='Temp (°C)')
-sim_period_slider = FloatSlider(min=50, max=100, step=5, value=70, description='Sim Days')
+# Feedstock sliders
+maize_slider = FloatSlider(min=0, max=100, step=5, value=50, description='🌽 Maize Silage:', style={'description_width': '120px'})
+grass_slider = FloatSlider(min=0, max=100, step=10, value=30, description='🌿 Grass Silage:', style={'description_width': '120px'})
+food_slider = FloatSlider(min=0, max=100, step=10, value=10, description='🍎 Food Waste:', style={'description_width': '120px'})
+cattle_slider = FloatSlider(min=0, max=100, step=10, value=10, description='🐄 Cattle Slurry:', style={'description_width': '120px'})
 
-# # Group into accordions
-feedstock_box = VBox([maize_slider, grass_slider, food_slider, cattle_slider])
-feedstock_acc = Accordion(children=[feedstock_box])
-feedstock_acc.set_title(0, 'Feedstock Mix (%)')
-feedstock_acc.selected_index = None  # <-- keeps it collapsed by default (title always visible)
+# Process parameter sliders
+v_slider = FloatSlider(min=1000, max=10000, step=500, value=7000, description='Volume (m³):', style={'description_width': '100px'})
+q_slider = FloatSlider(min=50, max=500, step=10, value=136.63, description='Flow (m³/day):', style={'description_width': '100px'})
+t_slider = FloatSlider(min=25, max=65, step=1, value=45, description='Temp (°C):', style={'description_width': '100px'})
+sim_period_slider = FloatSlider(min=50, max=100, step=5, value=70, description='Period (Days):', style={'description_width': '100px'})
 
-process_box = VBox([v_slider, q_slider, t_slider, sim_period_slider])
-process_acc = Accordion(children=[process_box])
-process_acc.set_title(0, 'Process Parameters')
-process_acc.selected_index = None
+# Simple layout without accordions
+feedstock_title = Output()
+with feedstock_title:
+    print('📊 Feedstock Composition (%)')
 
+process_title = Output()  
+with process_title:
+    print('⚙️ Process Parameters')
 
-
+feedstock_box = VBox([feedstock_title, maize_slider, grass_slider, food_slider, cattle_slider])
+process_box = VBox([process_title, v_slider, q_slider, t_slider, sim_period_slider])
 
 # Buttons
 run_button = Button(description='Run Simulation')
@@ -192,9 +172,9 @@ def on_reset_clicked(b):
 run_button.on_click(on_run_clicked)
 reset_button.on_click(on_reset_clicked)
 
-# # Display interface
-# #display(VBox([HBox([feedstock_acc, process_acc]), HBox([run_button, reset_button]), output]))
-display(HBox([feedstock_acc, process_acc]), HBox([run_button, reset_button]), output)
-
-
-
+# Display interface
+display(VBox([
+    HBox([feedstock_box, process_box]), 
+    HBox([run_button, reset_button]), 
+    output
+]))
