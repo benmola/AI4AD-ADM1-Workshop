@@ -102,26 +102,29 @@ def run_adm1(maize_silage, grass_silage, food_waste, cattle_slurry, V, Q, T, sim
 # Output widget
 output = Output()
 
-# Sliders
-maize_slider = FloatSlider(min=0, max=100, step=5, value=50, description='Maize Silage')
-grass_slider = FloatSlider(min=0, max=100, step=10, value=30, description='Grass Silage')
-food_slider = FloatSlider(min=0, max=100, step=10, value=10, description='Food Waste')
-cattle_slider = FloatSlider(min=0, max=100, step=10, value=10, description='Cattle Slurry')
-v_slider = FloatSlider(min=1000, max=10000, step=500, value=7000, description='Volume (m³)')
-q_slider = FloatSlider(min=50, max=500, step=10, value=136.63, description='Flow Q (m³/d)')
-t_slider = FloatSlider(min=25, max=65, step=1, value=45, description='Temp (°C)')
-sim_period_slider = FloatSlider(min=50, max=100, step=5, value=70, description='Sim Days')
+# Feedstock sliders
+maize_slider = FloatSlider(min=0, max=100, step=5, value=50, description='🌽 Maize:', style={'description_width': '120px'})
+grass_slider = FloatSlider(min=0, max=100, step=10, value=30, description='🌿 Grass:', style={'description_width': '120px'})
+food_slider = FloatSlider(min=0, max=100, step=10, value=10, description='🍎 Food Waste:', style={'description_width': '120px'})
+cattle_slider = FloatSlider(min=0, max=100, step=10, value=10, description='🐄 Cattle Slurry:', style={'description_width': '120px'})
 
-# Group into accordions
-feedstock_box = VBox([maize_slider, grass_slider, food_slider, cattle_slider])
-feedstock_acc = Accordion(children=[feedstock_box])
-feedstock_acc.set_title(0, 'Feedstock Mix (%)')
-feedstock_acc.selected_index = None
+# Process parameter sliders
+v_slider = FloatSlider(min=1000, max=10000, step=500, value=7000, description='Volume:', style={'description_width': '100px'})
+q_slider = FloatSlider(min=50, max=500, step=10, value=136.63, description='Flow Rate:', style={'description_width': '100px'})
+t_slider = FloatSlider(min=25, max=65, step=1, value=45, description='Temperature:', style={'description_width': '100px'})
+sim_period_slider = FloatSlider(min=50, max=100, step=5, value=70, description='Sim Period:', style={'description_width': '100px'})
 
-process_box = VBox([v_slider, q_slider, t_slider, sim_period_slider])
-process_acc = Accordion(children=[process_box])
-process_acc.set_title(0, 'Process Parameters')
-process_acc.selected_index = None
+# Simple layout without accordions
+feedstock_title = Output()
+with feedstock_title:
+    print('📊 Feedstock Composition (%)')
+
+process_title = Output()  
+with process_title:
+    print('⚙️ Process Parameters')
+
+feedstock_box = VBox([feedstock_title, maize_slider, grass_slider, food_slider, cattle_slider])
+process_box = VBox([process_title, v_slider, q_slider, t_slider, sim_period_slider])
 
 # Buttons
 run_button = Button(description='Run Simulation')
@@ -148,4 +151,8 @@ run_button.on_click(on_run_clicked)
 reset_button.on_click(on_reset_clicked)
 
 # Display interface
-display(HBox([feedstock_acc, process_acc]), HBox([run_button, reset_button]), output)
+display(VBox([
+    HBox([feedstock_box, process_box]), 
+    HBox([run_button, reset_button]), 
+    output
+]))
