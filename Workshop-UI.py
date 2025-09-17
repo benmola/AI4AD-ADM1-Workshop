@@ -33,7 +33,7 @@ def run_adm1(maize_silage, grass_silage, food_waste, cattle_slurry, V, Q, T, sim
         days = int(sim_days)  # Use simulation period instead of HRT
         
         
-        simulator = ADM1R3Simulator(ratios, days=days, Q=Q, V=V, T=T)
+        simulator = ADM1Simulator(ratios, days=days, Q=Q, V=V, T=T)
 
         # Simulate with progress bar
         with tqdm(total=days, desc='Simulating Days', disable=True) as pbar:
