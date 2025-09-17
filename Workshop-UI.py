@@ -3,12 +3,10 @@ import plotly.graph_objects as go
 import plotly.io as pio
 import kaleido
 import pandas as pd
-from ipywidgets import FloatSlider, Button, VBox, HBox, Output, Accordion
-from IPython.display import display, FileLink, clear_output
+from ipywidgets import FloatSlider, Button, VBox, HBox, Output
+from IPython.display import display, FileLink, clear_output, HTML
 from tqdm import tqdm
 import os
-
-
 
 def get_feedstock_ratios(maize_silage, grass_silage, food_waste, cattle_slurry):
     ratios = {
@@ -35,7 +33,7 @@ def run_adm1(maize_silage, grass_silage, food_waste, cattle_slurry, V, Q, T, sim
         days = int(sim_days)  # Use simulation period instead of HRT
         
         
-        simulator = ADM1Simulator(ratios, days=days, Q=Q, V=V, T=T)
+        simulator = ADM1R3Simulator(ratios, days=days, Q=Q, V=V, T=T)
 
         # Simulate with progress bar
         with tqdm(total=days, desc='Simulating Days', disable=True) as pbar:
@@ -148,20 +146,6 @@ q_slider = FloatSlider(min=50, max=500, step=10, value=136.63, description='Flow
 t_slider = FloatSlider(min=25, max=65, step=1, value=45, description='Temp (°C)')
 sim_period_slider = FloatSlider(min=50, max=100, step=5, value=70, description='Sim Days')
 
-# # Group into accordions
-feedstock_box = VBox([maize_slider, grass_slider, food_slider, cattle_slider])
-feedstock_acc = Accordion(children=[feedstock_box])
-feedstock_acc.set_title(0, 'Feedstock Mix (%)')
-feedstock_acc.selected_index = None  # <-- keeps it collapsed by default (title always visible)
-
-process_box = VBox([v_slider, q_slider, t_slider, sim_period_slider])
-process_acc = Accordion(children=[process_box])
-process_acc.set_title(0, 'Process Parameters')
-process_acc.selected_index = None
-
-
-
-
 # Buttons
 run_button = Button(description='Run Simulation')
 reset_button = Button(description='Reset Sliders')
@@ -186,9 +170,9 @@ def on_reset_clicked(b):
 run_button.on_click(on_run_clicked)
 reset_button.on_click(on_reset_clicked)
 
-# # Display interface
-# #display(VBox([HBox([feedstock_acc, process_acc]), HBox([run_button, reset_button]), output]))
-display(HBox([feedstock_acc, process_acc]), HBox([run_button, reset_button]), output)
-
-
-
+# Display interface
+display(HBox([
+    VBox([HTML('<b>Feedstock Mix (%)</b>'), maize_slider, grass_slider, food_slider, cattle_slider]),
+    VBox([HTML('<b>Process Parameters</b>'), v_slider, q_slider, t_slider, sim_period_slider])
+]))
+display(HBox([run_button, reset_button]), output)
