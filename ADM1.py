@@ -275,7 +275,10 @@ class ADM1Simulator:
 
     def run(self):
         """Execute the full simulation process."""
-        print("ADM1 Simulation in Progress....")
+        print("=============================================================================")
+        print("======================ADM1 Simulation in Progress....========================")
+        print("=============================================================================")
+        
         influent_df = self.run_codigestion()
         self.run_simulation(influent_df)
 
@@ -293,5 +296,6 @@ class ADM1Simulator:
             self.simulate_results.to_excel(writer, sheet_name='ADM1_R3_States', index=False)
             self.output_data.to_excel(writer, sheet_name='Process_Data', index=False)
         print(f"Simulation results saved to {file_path}")
+
 
 
