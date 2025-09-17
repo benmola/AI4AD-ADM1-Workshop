@@ -8,13 +8,13 @@ import plotly.graph_objects as go
 import plotly.io as pio
 import kaleido
 import pandas as pd
-from ipywidgets import FloatSlider, Button, VBox, HBox, Output, HTML, Layout
+from ipywidgets import FloatSlider, Button, VBox, HBox, Output, Accordion
 from IPython.display import display, FileLink, clear_output
 from tqdm import tqdm
 import os
 
-# Set Plotly renderer for Colab compatibility
-pio.renderers.default = 'colab'
+# # Set Plotly renderer for better compatibility in Colab/Colab
+# pio.renderers.default = 'colab'
 
 def get_feedstock_ratios(maize_silage, grass_silage, food_waste, cattle_slurry):
     ratios = {
@@ -44,7 +44,7 @@ def run_adm1(maize_silage, grass_silage, food_waste, cattle_slurry, V, Q, T, sim
         simulator = ADM1Simulator(ratios, days=days, Q=Q, V=V, T=T)
 
         # Simulate with progress bar
-        with tqdm(total=days, desc='Simulating Days') as pbar:
+        with tqdm(total=days, desc='Simulating Days', disable=True) as pbar:
             simulator.run()
             pbar.update(days)
 
@@ -66,34 +66,33 @@ def run_adm1(maize_silage, grass_silage, food_waste, cattle_slurry, V, Q, T, sim
         styled_summary = summary_df.style \
             .format('{:.2f}') \
             .background_gradient(cmap='viridis', axis=1) \
-            .set_properties(**{'font-size': '12pt', 'border': '1px solid lightgrey', 'text-align': 'center'}) \
+            .set_properties(**{'font-size': '10pt', 'border': '1px solid black'}) \
             .set_caption('📊 Steady-State Process Indicators') \
             .set_table_styles([
                 {'selector': 'th',
-                 'props': [('background-color', '#2E7D32'), ('color', 'white'), ('font-weight', 'bold'), ('padding', '8px')]},
+                 'props': [('background-color', '#4CAF50'), ('color', 'white'), ('font-weight', 'bold')]},
                 {'selector': 'td',
-                 'props': [('padding', '8px')]},
+                 'props': [('text-align', 'center')]},
                 {'selector': 'caption',
-                 'props': [('caption-side', 'top'), ('font-size', '1.3em'), ('font-weight', 'bold'), ('padding', '10px')]}
+                 'props': [('caption-side', 'top'), ('font-size', '1.2em'), ('font-weight', 'bold')]}
             ])
 
         display(styled_summary)
 
         # Animated Plotly plots
         fig = go.Figure()
-        fig.add_trace(go.Scatter(x=[], y=[], mode='lines', name='Methane Flow (m³/d)', line=dict(color='royalblue', width=3)))
-        fig.add_trace(go.Scatter(x=[], y=[], mode='lines', name='Biogas Flow (m³/d)', line=dict(color='mediumorchid', width=3)))
+        fig.add_trace(go.Scatter(x=[], y=[], mode='lines', name='Methane Flow (Output)', line=dict(color='blue', width=2)))
+        fig.add_trace(go.Scatter(x=[], y=[], mode='lines', name='Biogas Flow (Output)', line=dict(color='purple', width=2)))
 
         max_time = output_data['time'].max()
         max_flow = max(output_data['q_gas'].max(), output_data['q_ch4'].max()) * 1.1
         fig.update_layout(
-            title=dict(text='ADM1 Simulation: Biogas and Methane Flow Rates', font=dict(size=20)),
+            title='ADM1 Simulation Outputs: Biogas and Methane Flow Rates Over Time',
             xaxis_title='Time (days)',
             yaxis_title='Flow Rate (m³/d)',
             showlegend=True,
-            xaxis=dict(range=[0, max_time], title_font=dict(size=16), tickfont=dict(size=14)),
-            yaxis=dict(range=[0, max_flow], title_font=dict(size=16), tickfont=dict(size=14)),
-            legend=dict(font=dict(size=14)),
+            xaxis=dict(range=[0, max_time]),
+            yaxis=dict(range=[0, max_flow]),
             updatemenus=[{
                 'buttons': [
                     {
@@ -116,16 +115,13 @@ def run_adm1(maize_silage, grass_silage, food_waste, cattle_slurry, V, Q, T, sim
                 'y': 0,
                 'yanchor': 'top'
             }],
-            hovermode='x unified',
-            template='plotly_white',
-            height=600,
-            margin=dict(l=50, r=50, t=80, b=50)
+            hovermode='x unified'
         )
 
         frames = [go.Frame(
             data=[
-                go.Scatter(x=output_data['time'][:k], y=output_data['q_ch4'][:k], mode='lines', name='Methane Flow (m³/d)'),
-                go.Scatter(x=output_data['time'][:k], y=output_data['q_gas'][:k], mode='lines', name='Biogas Flow (m³/d)')
+                go.Scatter(x=output_data['time'][:k], y=output_data['q_ch4'][:k], mode='lines', name='Methane Flow (Output)'),
+                go.Scatter(x=output_data['time'][:k], y=output_data['q_gas'][:k], mode='lines', name='Biogas Flow (Output)')
             ],
             name=f'Frame {k}'
         ) for k in range(1, len(output_data) + 1)]
@@ -134,9 +130,9 @@ def run_adm1(maize_silage, grass_silage, food_waste, cattle_slurry, V, Q, T, sim
         fig.show()
 
         # Export button
-        export_button = Button(description='Export Results to CSV', style=dict(button_color='#4CAF50', font_weight='bold'))
+        export_button = Button(description='Export Results to CSV')
         def on_export_clicked(b):
-            filename = 'ADM1_simulation_results.csv'
+            filename = 'ADM1_results.csv'
             output_data.to_csv(filename, index=False)
             display(FileLink(filename))
             print(f'✅ CSV exported: {filename}')
@@ -146,56 +142,59 @@ def run_adm1(maize_silage, grass_silage, food_waste, cattle_slurry, V, Q, T, sim
         print('✅ Simulation Complete.')
 
 # Output widget
-output = Output(layout=Layout(border='1px solid lightgrey', padding='10px', margin='10px 0px'))
+output = Output()
 
-# Slider layout for consistency
-slider_layout = Layout(width='400px')
-value_style = {'description_width': '120px'}
+# Updated sliders -  added simulation period
+maize_slider = FloatSlider(min=0, max=100, step=5, value=50, description='Maize Silage')
+grass_slider = FloatSlider(min=0, max=100, step=10, value=30, description='Grass Silage')
+food_slider = FloatSlider(min=0, max=100, step=10, value=10, description='Food Waste')
+cattle_slider = FloatSlider(min=0, max=100, step=10, value=10, description='Cattle Slurry')
+v_slider = FloatSlider(min=1000, max=10000, step=500, value=7000, description='Volume (m³)')
+q_slider = FloatSlider(min=50, max=500, step=10, value=136.63, description='Flow Q (m³/d)')
+t_slider = FloatSlider(min=25, max=65, step=1, value=45, description='Temp (°C)')
+sim_period_slider = FloatSlider(min=50, max=100, step=5, value=70, description='Sim Days')
 
-# Updated sliders with professional labels
-maize_slider = FloatSlider(min=0, max=100, step=5, value=0, description='Maize Silage (%):', layout=slider_layout, style=value_style)
-grass_slider = FloatSlider(min=0, max=100, step=10, value=0, description='Grass Silage (%):', layout=slider_layout, style=value_style)
-food_slider = FloatSlider(min=0, max=100, step=10, value=90, description='Food Waste (%):', layout=slider_layout, style=value_style)
-cattle_slider = FloatSlider(min=0, max=100, step=10, value=10, description='Cattle Slurry (%):', layout=slider_layout, style=value_style)
-v_slider = FloatSlider(min=1000, max=10000, step=500, value=7500, description='Reactor Volume (m³):', layout=slider_layout, style=value_style)
-q_slider = FloatSlider(min=50, max=500, step=10, value=136.63, description='Influent Flow (m³/d):', layout=slider_layout, style=value_style)
-t_slider = FloatSlider(min=25, max=65, step=1, value=35, description='Temperature (°C):', layout=slider_layout, style=value_style)
-sim_period_slider = FloatSlider(min=50, max=365, step=5, value=100, description='Simulation Days:', layout=slider_layout, style=value_style)
+# # Group into accordions
+feedstock_box = VBox([maize_slider, grass_slider, food_slider, cattle_slider])
+feedstock_acc = Accordion(children=[feedstock_box])
+feedstock_acc.set_title(0, 'Feedstock Mix (%)')
+feedstock_acc.selected_index = None  # <-- keeps it collapsed by default (title always visible)
 
-# Buttons with styling
-run_button = Button(description='Run Simulation', style=dict(button_color='#2196F3', font_weight='bold', description_width='initial'), layout=Layout(width='200px', margin='10px'))
-reset_button = Button(description='Reset Sliders', style=dict(button_color='#FF5722', font_weight='bold', description_width='initial'), layout=Layout(width='200px', margin='10px'))
+process_box = VBox([v_slider, q_slider, t_slider, sim_period_slider])
+process_acc = Accordion(children=[process_box])
+process_acc.set_title(0, 'Process Parameters')
+process_acc.selected_index = None
+
+
+
+
+# Buttons
+run_button = Button(description='Run Simulation')
+reset_button = Button(description='Reset Sliders')
 
 def on_run_clicked(b):
-    total_ratio = maize_slider.value + grass_slider.value + food_slider.value + cattle_slider.value
-    if abs(total_ratio - 100) > 0.01:
-        with output:
-            clear_output(wait=True)
-            print('⚠️ Error: Feedstock ratios must sum to 100%. Current sum: {:.2f}%'.format(total_ratio))
-        return
     run_adm1(maize_slider.value, grass_slider.value, food_slider.value, cattle_slider.value,
              v_slider.value, q_slider.value, t_slider.value, sim_period_slider.value, output)
 
 def on_reset_clicked(b):
-    maize_slider.value = 0
-    grass_slider.value = 0
-    food_slider.value = 90
+    maize_slider.value = 50
+    grass_slider.value = 30
+    food_slider.value = 10
     cattle_slider.value = 10
-    v_slider.value = 7500
+    v_slider.value = 7000
     q_slider.value = 136.63
-    t_slider.value = 35
-    sim_period_slider.value = 100
+    t_slider.value = 45
+    sim_period_slider.value = 150
     with output:
         clear_output(wait=True)
-        print('✅ Sliders reset to default values.')
+        print('Sliders reset to defaults.')
 
 run_button.on_click(on_run_clicked)
 reset_button.on_click(on_reset_clicked)
 
-# Display interface with title
-display(HTML('<h2 style="text-align: center; color: #333; margin-bottom: 20px;">ADM1 Anaerobic Digestion Simulator</h2>'))
-display(HBox([
-    VBox([HTML('<b style="font-size: 16px; color: #4CAF50;">Feedstock Composition</b>'), maize_slider, grass_slider, food_slider, cattle_slider], layout=Layout(border='1px solid lightgrey', padding='15px', margin='10px', width='50%')),
-    VBox([HTML('<b style="font-size: 16px; color: #4CAF50;">Reactor Parameters</b>'), v_slider, q_slider, t_slider, sim_period_slider], layout=Layout(border='1px solid lightgrey', padding='15px', margin='10px', width='50%'))
-], layout=Layout(justify_content='space-around')))
-display(HBox([run_button, reset_button], layout=Layout(justify_content='center')), output)
+# # Display interface
+# #display(VBox([HBox([feedstock_acc, process_acc]), HBox([run_button, reset_button]), output]))
+display(HBox([feedstock_acc, process_acc]), HBox([run_button, reset_button]), output)
+
+
+
