@@ -1,11 +1,13 @@
 from ADM1 import ADM1Simulator
-import matplotlib.pyplot as plt
-import matplotlib.animation as animation
+import plotly.graph_objects as go
+import plotly.io as pio
+import kaleido
 import pandas as pd
+import numpy as np
 from ipywidgets import FloatSlider, Button, VBox, HBox, Output, Accordion
 from IPython.display import display, FileLink, clear_output
 from tqdm import tqdm
-import numpy as np
+import os
 
 def get_feedstock_ratios(maize_silage, grass_silage, food_waste, cattle_slurry):
     ratios = {
@@ -57,35 +59,55 @@ def run_adm1(maize_silage, grass_silage, food_waste, cattle_slurry, V, Q, T, sim
 
         display(styled_summary)
 
-        # Matplotlib plots
-        fig, (ax1, ax2) = plt.subplots(2, 1, figsize=(12, 10))
-        
-        # Plot 1: Flow rates over time
-        ax1.plot(output_data['time'], output_data['q_ch4'], 'b-', linewidth=2, label='Methane Flow')
-        ax1.plot(output_data['time'], output_data['q_gas'], 'purple', linewidth=2, label='Biogas Flow')
-        ax1.set_xlabel('Time (days)')
-        ax1.set_ylabel('Flow Rate (m³/d)')
-        ax1.set_title('ADM1 Simulation: Biogas and Methane Flow Rates Over Time')
-        ax1.legend()
-        ax1.grid(True, alpha=0.3)
-        
-        # Plot 2: Process indicators
-        ax2_twin = ax2.twinx()
-        ax2.plot(output_data['time'], output_data['pH'], 'g-', linewidth=2, label='pH')
-        ax2_twin.plot(output_data['time'], output_data['FOS/TAC'], 'r-', linewidth=2, label='FOS/TAC')
-        ax2.set_xlabel('Time (days)')
-        ax2.set_ylabel('pH', color='g')
-        ax2_twin.set_ylabel('FOS/TAC Ratio', color='r')
-        ax2.set_title('Process Stability Indicators')
-        ax2.grid(True, alpha=0.3)
-        
-        # Legends
-        lines1, labels1 = ax2.get_legend_handles_labels()
-        lines2, labels2 = ax2_twin.get_legend_handles_labels()
-        ax2.legend(lines1 + lines2, labels1 + labels2, loc='upper right')
-        
-        plt.tight_layout()
-        plt.show()
+        # Animated Plotly plots
+        fig = go.Figure()
+        fig.add_trace(go.Scatter(x=[], y=[], mode='lines', name='Methane Flow (Output)', line=dict(color='blue', width=2)))
+        fig.add_trace(go.Scatter(x=[], y=[], mode='lines', name='Biogas Flow (Output)', line=dict(color='purple', width=2)))
+
+        max_time = output_data['time'].max()
+        max_flow = max(output_data['q_gas'].max(), output_data['q_ch4'].max()) * 1.1
+        fig.update_layout(
+            title='ADM1 Simulation Outputs: Biogas and Methane Flow Rates Over Time',
+            xaxis_title='Time (days)',
+            yaxis_title='Flow Rate (m³/d)',
+            showlegend=True,
+            xaxis=dict(range=[0, max_time]),
+            yaxis=dict(range=[0, max_flow]),
+            updatemenus=[{
+                'buttons': [
+                    {
+                        'args': [None, {'frame': {'duration': 50, 'redraw': True}, 'fromcurrent': True, 'mode': 'immediate'}],
+                        'label': '▶️ Play',
+                        'method': 'animate'
+                    },
+                    {
+                        'args': [[None], {'frame': {'duration': 0, 'redraw': True}, 'mode': 'immediate'}],
+                        'label': '⏸️ Pause',
+                        'method': 'animate'
+                    }
+                ],
+                'direction': 'left',
+                'pad': {'r': 10, 't': 87},
+                'showactive': True,
+                'type': 'buttons',
+                'x': 0.1,
+                'xanchor': 'right',
+                'y': 0,
+                'yanchor': 'top'
+            }],
+            hovermode='x unified'
+        )
+
+        frames = [go.Frame(
+            data=[
+                go.Scatter(x=output_data['time'][:k], y=output_data['q_ch4'][:k], mode='lines', name='Methane Flow (Output)'),
+                go.Scatter(x=output_data['time'][:k], y=output_data['q_gas'][:k], mode='lines', name='Biogas Flow (Output)')
+            ],
+            name=f'Frame {k}'
+        ) for k in range(1, len(output_data) + 1)]
+        fig.frames = frames
+
+        fig.show()
 
         # Export functionality
         export_button = Button(description='Export Results to CSV')
