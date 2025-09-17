@@ -70,11 +70,11 @@ def run_adm1(maize_silage, grass_silage, food_waste, cattle_slurry, V, Q, T, sim
             .set_caption('📊 Steady-State Process Indicators') \
             .set_table_styles([
                 {'selector': 'th',
-                 'props': [('background-color', '#2E7D32'), ('color', 'white'), ('font-weight', 'bold'), ('padding': '8px')]},
+                 'props': [('background-color', '#2E7D32'), ('color', 'white'), ('font-weight', 'bold'), ('padding', '8px')]},
                 {'selector': 'td',
-                 'props': [('padding': '8px')]},
+                 'props': [('padding', '8px')]},
                 {'selector': 'caption',
-                 'props': [('caption-side', 'top'), ('font-size': '1.3em'), ('font-weight', 'bold'), ('padding': '10px')]}
+                 'props': [('caption-side', 'top'), ('font-size', '1.3em'), ('font-weight', 'bold'), ('padding', '10px')]}
             ])
 
         display(styled_summary)
