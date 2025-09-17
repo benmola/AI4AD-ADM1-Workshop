@@ -184,7 +184,7 @@ def on_reset_clicked(b):
     v_slider.value = 7000
     q_slider.value = 136.63
     t_slider.value = 45
-    sim_period_slider.value = 150
+    sim_period_slider.value = 70
     with output:
         clear_output(wait=True)
         print('Sliders reset to defaults.')
