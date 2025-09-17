@@ -3,8 +3,8 @@ import plotly.graph_objects as go
 import plotly.io as pio
 import kaleido
 import pandas as pd
-from ipywidgets import FloatSlider, Button, VBox, HBox, Output
-from IPython.display import display, FileLink, clear_output, HTML
+from ipywidgets import FloatSlider, Button, VBox, HBox, Output, HTML
+from IPython.display import display, FileLink, clear_output
 from tqdm import tqdm
 import os
 
@@ -172,7 +172,7 @@ reset_button.on_click(on_reset_clicked)
 
 # Display interface
 display(HBox([
-    VBox([HTML('<b>Feedstock Mix (%)</b>'), maize_slider, grass_slider, food_slider, cattle_slider]),
-    VBox([HTML('<b>Process Parameters</b>'), v_slider, q_slider, t_slider, sim_period_slider])
+    VBox([HTML(value='<b>Feedstock Mix (%)</b>'), maize_slider, grass_slider, food_slider, cattle_slider]),
+    VBox([HTML(value='<b>Process Parameters</b>'), v_slider, q_slider, t_slider, sim_period_slider])
 ]))
 display(HBox([run_button, reset_button]), output)
