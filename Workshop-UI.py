@@ -139,7 +139,7 @@ sim_period_slider = FloatSlider(min=50, max=100, step=5, value=70, description='
 # Simple layout without accordions
 feedstock_title = Output()
 with feedstock_title:
-    print('📊 Feedstock Composition (%)')
+    print('📊 Feedstock Mix (%)')
 
 process_title = Output()  
 with process_title:
